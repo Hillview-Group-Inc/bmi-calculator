@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BMI Calculator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React and ReactDOM -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+
+    <!-- Babel Standalone for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      // Inline SVG icon components (replaces lucide CDN)
+      const Calculator = ({ className }) => (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="16" height="20" x="4" y="2" rx="2"/>
+          <line x1="8" x2="16" y1="7" y2="7"/>
+          <line x1="16" x2="16" y1="11" y2="13"/>
+          <line x1="12" x2="12" y1="11" y2="13"/>
+          <line x1="8" x2="8" y1="11" y2="13"/>
+          <line x1="16" x2="16" y1="15" y2="17"/>
+          <line x1="12" x2="12" y1="15" y2="17"/>
+          <line x1="8" x2="8" y1="15" y2="17"/>
+        </svg>
+      );
+
+      const History = ({ className }) => (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M12 7v5l4 2"/>
+        </svg>
+      );
+
+      const Trash2 = ({ className }) => (
+        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 6h18"/>
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          <line x1="10" x2="10" y1="11" y2="17"/>
+          <line x1="14" x2="14" y1="11" y2="17"/>
+        </svg>
+      );
+
+      function BMICalculator() {
+        const [isMetric, setIsMetric] = useState(false);
+        const [feet, setFeet] = useState("");
+        const [inches, setInches] = useState("");
+        const [weight, setWeight] = useState("");
+        const [heightCm, setHeightCm] = useState("");
+        const [weightKg, setWeightKg] = useState("");
+        const [bmi, setBmi] = useState(null);
+        const [category, setCategory] = useState("");
+        const [history, setHistory] = useState([]);
+
+        useEffect(() => {
+          const saved = localStorage.getItem("bmiHistory");
+          if (saved) {
+            setHistory(JSON.parse(saved));
+          }
+        }, []);
+
+        const getBMICategory = (bmiValue) => {
+          if (bmiValue < 18.5)
+            return { text: "Underweight", color: "text-blue-600", bg: "bg-blue-50" };
+          if (bmiValue < 25)
+            return {
+              text: "Normal Weight",
+              color: "text-green-600",
+              bg: "bg-green-50",
+            };
+          if (bmiValue < 30)
+            return {
+              text: "Overweight",
+              color: "text-yellow-600",
+              bg: "bg-yellow-50",
+            };
+          return { text: "Obese", color: "text-red-600", bg: "bg-red-50" };
+        };
+
+        const calculateBMI = () => {
+          let heightInMeters, weightInKg, inputDisplay;
+
+          if (isMetric) {
+            const h = parseFloat(heightCm);
+            const w = parseFloat(weightKg);
+
+            if (h <= 0 || w <= 0 || isNaN(h) || isNaN(w)) {
+              alert("Please enter valid positive numbers");
+              return;
+            }
+
+            heightInMeters = h / 100;
+            weightInKg = w;
+            inputDisplay = `${h} cm, ${w} kg`;
+          } else {
+            const f = parseFloat(feet);
+            const i = parseFloat(inches);
+            const w = parseFloat(weight);
+
+            if (f <= 0 || i < 0 || w <= 0 || isNaN(f) || isNaN(i) || isNaN(w)) {
+              alert("Please enter valid positive numbers");
+              return;
+            }
+
+            const totalInches = f * 12 + i;
+            heightInMeters = totalInches * 0.0254;
+            weightInKg = w * 0.453592;
+            inputDisplay = `${f}' ${i}", ${w} lbs`;
+          }
+
+          const bmiValue = weightInKg / (heightInMeters * heightInMeters);
+          const categoryResult = getBMICategory(bmiValue);
+
+          setBmi(bmiValue.toFixed(1));
+          setCategory(categoryResult);
+
+          const newEntry = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            inputs: inputDisplay,
+            unit: isMetric ? "Metric" : "Imperial",
+            bmi: bmiValue.toFixed(1),
+            category: categoryResult.text,
+          };
+
+          const updatedHistory = [newEntry, ...history].slice(0, 5);
+          setHistory(updatedHistory);
+          localStorage.setItem("bmiHistory", JSON.stringify(updatedHistory));
+        };
+
+        const handleReset = () => {
+          setFeet("");
+          setInches("");
+          setWeight("");
+          setHeightCm("");
+          setWeightKg("");
+          setBmi(null);
+          setCategory("");
+        };
+
+        const clearHistory = () => {
+          setHistory([]);
+          localStorage.removeItem("bmiHistory");
+        };
+
+        const toggleUnits = () => {
+          setIsMetric(!isMetric);
+          handleReset();
+        };
+
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <Calculator className="w-8 h-8 text-indigo-600" />
+                  </div>
+                </div>
+
+                <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
+                  BMI Calculator
+                </h1>
+                <p className="text-gray-600 text-center mb-6">
+                  Calculate your Body Mass Index
+                </p>
+
+                <div className="flex justify-center mb-6">
+                  <div className="bg-gray-100 rounded-lg p-1 inline-flex">
+                    <button
+                      onClick={toggleUnits}
+                      className={`px-6 py-2 rounded-md font-semibold transition ${!isMetric ? "bg-white text-indigo-600 shadow" : "text-gray-600"}`}
+                    >
+                      Imperial
+                    </button>
+                    <button
+                      onClick={toggleUnits}
+                      className={`px-6 py-2 rounded-md font-semibold transition ${isMetric ? "bg-white text-indigo-600 shadow" : "text-gray-600"}`}
+                    >
+                      Metric
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {!isMetric ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Height
+                        </label>
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              value={feet}
+                              onChange={(e) => setFeet(e.target.value)}
+                              placeholder="Feet"
+                              min="0"
+                              step="1"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <input
+                              type="number"
+                              value={inches}
+                              onChange={(e) => setInches(e.target.value)}
+                              placeholder="Inches"
+                              min="0"
+                              max="11"
+                              step="0.1"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Weight (pounds)
+                        </label>
+                        <input
+                          type="number"
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
+                          placeholder="Enter weight in lbs"
+                          min="0"
+                          step="0.1"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Height (centimeters)
+                        </label>
+                        <input
+                          type="number"
+                          value={heightCm}
+                          onChange={(e) => setHeightCm(e.target.value)}
+                          placeholder="Enter height in cm"
+                          min="0"
+                          step="0.1"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Weight (kilograms)
+                        </label>
+                        <input
+                          type="number"
+                          value={weightKg}
+                          onChange={(e) => setWeightKg(e.target.value)}
+                          placeholder="Enter weight in kg"
+                          min="0"
+                          step="0.1"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={calculateBMI}
+                      className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200 shadow-md"
+                    >
+                      Calculate
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="px-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition duration-200"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+
+                {bmi && (
+                  <div
+                    className={`mt-8 p-6 rounded-xl ${category.bg} border-2 border-${category.color.split("-")[1]}-200`}
+                  >
+                    <div className="text-center">
+                      <p className="text-gray-600 text-sm font-medium mb-2">
+                        Your BMI
+                      </p>
+                      <p className="text-5xl font-bold text-gray-800 mb-3">{bmi}</p>
+                      <div
+                        className={`inline-block px-4 py-2 rounded-full ${category.color} bg-white font-semibold text-lg`}
+                      >
+                        {category.text}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-gray-300">
+                      <p className="text-xs text-gray-600 text-center">
+                        BMI Categories: Underweight (&lt;18.5) • Normal (18.5-24.9) •
+                        Overweight (25-29.9) • Obese (≥30)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {history.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <History className="w-6 h-6 text-indigo-600" />
+                      <h2 className="text-2xl font-bold text-gray-800">
+                        Calculation History
+                      </h2>
+                    </div>
+                    <button
+                      onClick={clearHistory}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-semibold"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Clear History
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {history.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="text-sm text-gray-500">{entry.date}</p>
+                          <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
+                            {entry.unit}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-gray-700 font-medium">
+                              {entry.inputs}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-gray-800">
+                              {entry.bmi}
+                            </p>
+                            <p
+                              className={`text-sm font-semibold ${
+                                entry.category === "Underweight"
+                                  ? "text-blue-600"
+                                  : entry.category === "Normal Weight"
+                                    ? "text-green-600"
+                                    : entry.category === "Overweight"
+                                      ? "text-yellow-600"
+                                      : "text-red-600"
+                              }`}
+                            >
+                              {entry.category}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<BMICalculator />);
+    </script>
+  </body>
+</html>
