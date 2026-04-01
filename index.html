@@ -1,6 +1,20 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-RRLDK9D81J"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-RRLDK9D81J");
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BMI Calculator</title>
@@ -29,33 +43,66 @@
 
       // Inline SVG icon components (replaces lucide CDN)
       const Calculator = ({ className }) => (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect width="16" height="20" x="4" y="2" rx="2"/>
-          <line x1="8" x2="16" y1="7" y2="7"/>
-          <line x1="16" x2="16" y1="11" y2="13"/>
-          <line x1="12" x2="12" y1="11" y2="13"/>
-          <line x1="8" x2="8" y1="11" y2="13"/>
-          <line x1="16" x2="16" y1="15" y2="17"/>
-          <line x1="12" x2="12" y1="15" y2="17"/>
-          <line x1="8" x2="8" y1="15" y2="17"/>
+        <svg
+          className={className}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect width="16" height="20" x="4" y="2" rx="2" />
+          <line x1="8" x2="16" y1="7" y2="7" />
+          <line x1="16" x2="16" y1="11" y2="13" />
+          <line x1="12" x2="12" y1="11" y2="13" />
+          <line x1="8" x2="8" y1="11" y2="13" />
+          <line x1="16" x2="16" y1="15" y2="17" />
+          <line x1="12" x2="12" y1="15" y2="17" />
+          <line x1="8" x2="8" y1="15" y2="17" />
         </svg>
       );
 
       const History = ({ className }) => (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-          <path d="M3 3v5h5"/>
-          <path d="M12 7v5l4 2"/>
+        <svg
+          className={className}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M12 7v5l4 2" />
         </svg>
       );
 
       const Trash2 = ({ className }) => (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 6h18"/>
-          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-          <line x1="10" x2="10" y1="11" y2="17"/>
-          <line x1="14" x2="14" y1="11" y2="17"/>
+        <svg
+          className={className}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          <line x1="10" x2="10" y1="11" y2="17" />
+          <line x1="14" x2="14" y1="11" y2="17" />
         </svg>
       );
 
@@ -79,7 +126,11 @@
 
         const getBMICategory = (bmiValue) => {
           if (bmiValue < 18.5)
-            return { text: "Underweight", color: "text-blue-600", bg: "bg-blue-50" };
+            return {
+              text: "Underweight",
+              color: "text-blue-600",
+              bg: "bg-blue-50",
+            };
           if (bmiValue < 25)
             return {
               text: "Normal Weight",
@@ -309,7 +360,9 @@
                       <p className="text-gray-600 text-sm font-medium mb-2">
                         Your BMI
                       </p>
-                      <p className="text-5xl font-bold text-gray-800 mb-3">{bmi}</p>
+                      <p className="text-5xl font-bold text-gray-800 mb-3">
+                        {bmi}
+                      </p>
                       <div
                         className={`inline-block px-4 py-2 rounded-full ${category.color} bg-white font-semibold text-lg`}
                       >
@@ -319,8 +372,8 @@
 
                     <div className="mt-6 pt-6 border-t border-gray-300">
                       <p className="text-xs text-gray-600 text-center">
-                        BMI Categories: Underweight (&lt;18.5) • Normal (18.5-24.9) •
-                        Overweight (25-29.9) • Obese (≥30)
+                        BMI Categories: Underweight (&lt;18.5) • Normal
+                        (18.5-24.9) • Overweight (25-29.9) • Obese (≥30)
                       </p>
                     </div>
                   </div>
